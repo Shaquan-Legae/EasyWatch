@@ -57,45 +57,58 @@ def loading():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        if email and password:
-            user_ref = db.collection('users').document(email).get()
-            if user_ref.exists:
-                user_data = user_ref.to_dict()
-                if user_data.get('password') == password:  # Warning: Plaintext comparison; use hashing in production
-                    session['user'] = email
-                    session['dob'] = user_data.get('dob')
-                    return redirect(url_for('index'))
-                return render_template('login.html', error="Incorrect password.")
-            return render_template('login.html', error="Email not found.")
-        return render_template('login.html', error="Please fill in all fields.")
+        data = request.get_json()  # Get JSON from AJAX
+        email = data.get('email')
+        password = data.get('password')
+
+        if not (email and password):
+            return jsonify({"success": False, "message": "Please fill in all fields."})
+
+        user_ref = db.collection('users').document(email).get()
+        if user_ref.exists:
+            user_data = user_ref.to_dict()
+            if user_data.get('password') == password:  # Plaintext, should hash in prod
+                session['user'] = email
+                session['dob'] = user_data.get('dob')
+                return jsonify({"success": True, "message": "Login successful."})
+            return jsonify({"success": False, "message": "Incorrect password."})
+        return jsonify({"success": False, "message": "Email not found."})
+
     return render_template('login.html')
+
 
 # Route for the signup page
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        dob = request.form.get('dob')
-        if email and password and dob:
-            # Check if user already exists
-            user_ref = db.collection('users').document(email).get()
-            if user_ref.exists:
-                return render_template('signup.html', error="Email already registered.")
-            # Store user data in Firestore
-            user_ref = db.collection('users').document(email)
-            user_ref.set({
-                'email': email,
-                'password': password,  # Warning: Store passwords hashed in production (e.g., with bcrypt)
-                'dob': dob,
-                'created_at': firestore.SERVER_TIMESTAMP
-            })
-            session['user'] = email
-            session['dob'] = dob
-            return redirect(url_for('index'))
-        return render_template('signup.html', error="Please fill in all fields.")
+        data = request.get_json()  # Get JSON data from AJAX request
+        email = data.get('email')
+        password = data.get('password')
+        dob = data.get('dob')
+
+        if not (email and password and dob):
+            return jsonify({"success": False, "message": "Please fill in all fields."})
+
+        # Check if user already exists
+        user_ref = db.collection('users').document(email).get()
+        if user_ref.exists:
+            return jsonify({"success": False, "message": "Email already registered."})
+
+        # Store user data in Firestore
+        db.collection('users').document(email).set({
+            'email': email,
+            'password': password,  # WARNING: Use hashing (bcrypt) in production
+            'dob': dob,
+            'created_at': firestore.SERVER_TIMESTAMP
+        })
+
+        # Set session
+        session['user'] = email
+        session['dob'] = dob
+
+        return jsonify({"success": True, "message": "Signup successful."})
+
+    # GET request: render signup page
     return render_template('signup.html')
 
 # Route for the homepage
