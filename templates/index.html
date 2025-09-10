@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyWatch- Your Movie Destination</title>
-    
+    <link rel="icon" type="image/x-icon" href="images/icon.ico">
+    <title>EasyWatch - Your Movie Destination</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body class="bg-gray-900 text-white font-sans">
     <!-- Header -->
     <header class="bg-black bg-opacity-80 p-4 sticky top-0 z-10">
         <nav class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">EasyWatch</h1>
+            <h1 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-film mr-2"></i> <!-- Movie camera icon -->
+                EasyWatch
+            </h1>
             <ul class="flex space-x-6">
-                <li><a href="#" class="hover:text-red-500">Home</a></li>
-                <li><a href="#" class="hover:text-red-500">Movies</a></li>
-                <li><a href="#" class="hover:text-red-500">Genres</a></li>
-                <li><a href="#" class="hover:text-red-500">Contact</a></li>
+                <li><a href="/index" class="hover:text-red-500">Home</a></li>
+                <li><a href="/movies" class="hover:text-red-500">Movies</a></li>
+                <li><a href="/genres" class="hover:text-red-500">Genres</a></li>
+                <li><a href="/contact" class="hover:text-red-500">Contact</a></li>
+                <li><a href="/signup" class="hover:text-red-500">Sign Out</a></li>
             </ul>
         </nav>
     </header>
@@ -25,8 +31,25 @@
     <section class="bg-cover bg-center h-96 flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91aad9c28?q=80&w=1920')">
         <div class="text-center bg-black bg-opacity-50 p-8 rounded-lg">
             <h2 class="text-4xl font-bold mb-4">Discover Your Next Favorite Movie</h2>
-            <p class="text-lg mb-6">Explore a vast collection of movies and find recommendations tailored to you.</p>
-            <button onclick="scrollToMovies()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Browse Movies</button>
+            <p class="text-lg mb-6">Enter a movie title to get personalized recommendations.</p>
+            <div class="flex justify-center">
+                <input id="movieInput" type="text" list="movies" placeholder="Enter movie title" class="bg-gray-800 text-white p-2 rounded-l-lg focus:outline-none">
+                <datalist id="movies">
+                    {% for movie in movies %}
+                    <option value="{{ movie }}">
+                    {% endfor %}
+                </datalist>
+                <button onclick="getRecommendations()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-r-lg">Search</button>
+            </div>
+            <p id="error" class="text-red-500 mt-2 hidden"></p>
+        </div>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section id="recommendations" class="container mx-auto py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">Recommended Movies</h2>
+        <div id="recommendationsList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- Recommendations will be populated here -->
         </div>
     </section>
 
@@ -34,7 +57,6 @@
     <section id="movies" class="container mx-auto py-12">
         <h2 class="text-3xl font-bold text-center mb-8">Featured Movies</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            <!-- Movie Card 1 -->
             <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                 <img src="https://images.unsplash.com/photo-1524985069026-ddc6b76e66f8?q=80&w=300" alt="Movie 1" class="w-full h-64 object-cover">
                 <div class="p-4">
@@ -43,7 +65,6 @@
                     <button class="mt-2 bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded">Watch Now</button>
                 </div>
             </div>
-            <!-- Movie Card 2 -->
             <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                 <img src="https://images.unsplash.com/photo-1536440136628-1c1b741e4a29?q=80&w=300" alt="Movie 2" class="w-full h-64 object-cover">
                 <div class="p-4">
@@ -52,7 +73,6 @@
                     <button class="mt-2 bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded">Watch Now</button>
                 </div>
             </div>
-            <!-- Movie Card 3 -->
             <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                 <img src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=300" alt="Movie 3" class="w-full h-64 object-cover">
                 <div class="p-4">
@@ -61,7 +81,6 @@
                     <button class="mt-2 bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded">Watch Now</button>
                 </div>
             </div>
-            <!-- Movie Card 4 -->
             <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                 <img src="https://images.unsplash.com/photo-1535666268111-56f56dc4e224?q=80&w=300" alt="Movie 4" class="w-full h-64 object-cover">
                 <div class="p-4">
@@ -76,7 +95,7 @@
     <!-- Footer -->
     <footer class="bg-black bg-opacity-80 py-6">
         <div class="container mx-auto text-center">
-            <p>&copy; 2025 MovieFlix. All rights reserved.</p>
+            <p>&copy; 2025 EasyWatch. All rights reserved.</p>
             <div class="mt-4">
                 <a href="#" class="text-gray-400 hover:text-red-500 mx-2">Privacy Policy</a>
                 <a href="#" class="text-gray-400 hover:text-red-500 mx-2">Terms of Service</a>
@@ -84,11 +103,52 @@
         </div>
     </footer>
 
-    <!-- JavaScript for smooth scrolling -->
+    <!-- JavaScript for recommendations -->
     <script>
-        function scrollToMovies() {
-            document.getElementById('movies').scrollIntoView({ behavior: 'smooth' });
+        async function getRecommendations() {
+            const movieInput = document.getElementById('movieInput').value;
+            const errorElement = document.getElementById('error');
+            const recommendationsList = document.getElementById('recommendationsList');
+            
+            errorElement.classList.add('hidden');
+            recommendationsList.innerHTML = '';
+
+            const response = await fetch('/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `movie_title=${encodeURIComponent(movieInput)}`
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                errorElement.textContent = data.error;
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            data.recommendations.forEach((movie, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow';
+                div.innerHTML = `
+                    <img src="https://images.unsplash.com/photo-1489599849927-2ee91aad9c28?q=80&w=300" alt="${movie}" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold">${movie}</h3>
+                        <p class="text-gray-400">Recommendation #${index + 1}</p>
+                    </div>
+                `;
+                recommendationsList.appendChild(div);
+            });
+
+            recommendationsList.scrollIntoView({ behavior: 'smooth' });
         }
+
+        // Trigger recommendation on Enter key
+        document.getElementById('movieInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getRecommendations();
+            }
+        });
     </script>
 </body>
 </html>
